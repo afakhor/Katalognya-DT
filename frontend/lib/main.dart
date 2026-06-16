@@ -2,9 +2,9 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
-// Ganti dengan IP laptop/server kamu pas testing
-// Contoh termux: http://localhost:8000
-sed -i "s|http://localhost:8000|http://127.0.0.1:8000|g" ~/katalog-dt/frontend/lib/main.dart;
+// Ganti dengan IP server kamu pas testing
+// Termux di HP yang sama: http://127.0.0.1:8000
+const String BASE_URL = 'http://127.0.0.1:8000';
 
 void main() => runApp(const KatalogApp());
 
@@ -50,15 +50,31 @@ class _ProductPageState extends State<ProductPage> {
 
   Future<void> submitPO() async {
     if (cart.isEmpty) return;
-    final items = cart.entries.map((e) => {'product_id': e.key, 'qty': e.value}).toList();
+
+    // build items sesuai schema FastAPI kamu
+    final items = cart.entries.map((e) {
+      final p = products.firstWhere((x) => x['id'] == e.key, orElse: () => {'name': 'Produk', 'price': 0});
+      return {
+        'product_id': e.key,
+        'product_name': p['name'],
+        'price': (p['price']?? 0).toDouble(),
+        'qty': e.value,
+      };
+    }).toList();
+
     final res = await http.post(
       Uri.parse('$BASE_URL/po'),
       headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({'items': items}),
+      body: jsonEncode({
+        'store_name': 'Toko Test',
+        'sales_name': 'DT',
+        'notes': null,
+        'items': items,
+      }),
     );
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(res.statusCode == 200? 'PO terkirim' : 'Gagal: ${res.statusCode}')),
+      SnackBar(content: Text(res.statusCode == 200? 'PO terkirim' : 'Gagal: ${res.body}')),
     );
     if (res.statusCode == 200) setState(() => cart.clear());
   }
@@ -77,7 +93,7 @@ class _ProductPageState extends State<ProductPage> {
                 final qty = cart[id]?? 0;
                 return ListTile(
                   title: Text(p['name']?? 'Produk $id'),
-                  subtitle: Text('Rp ${p['price']?? 0}'),
+                  subtitle: Text(p['description']?? 'Rp ${p['price']?? 0}'),
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -95,13 +111,3 @@ class _ProductPageState extends State<ProductPage> {
                 );
               },
             ),
-      bottomNavigationBar: Padding(
-        padding: const EdgeInsets.all(12),
-        child: FilledButton(
-          onPressed: cart.isEmpty? null : submitPO,
-          child: Text('Kirim PO (${cart.values.fold(0, (a, b) => a + b)} item)'),
-        ),
-      ),
-    );
-  }
-}
