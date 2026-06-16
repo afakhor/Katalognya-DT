@@ -1,0 +1,23 @@
+name: Build APK
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+      - run: flutter pub get
+        working-directory: frontend
+      - run: flutter build apk --release
+        working-directory: frontend
+      - run: mv frontend/build/app/outputs/flutter-apk/app-release.apk frontend/build/app/outputs/flutter-apk/katalog-DT.apk
+      - uses: actions/upload-artifact@v4
+        with:
+          name: katalog-DT
+          path: frontend/build/app/outputs/flutter-apk/katalog-DT.apk
