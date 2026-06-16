@@ -1,3 +1,5 @@
+cd ~/katalog-dt/frontend
+cat > lib/main.dart << 'DART'
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -50,8 +52,6 @@ class _ProductPageState extends State<ProductPage> {
 
   Future<void> submitPO() async {
     if (cart.isEmpty) return;
-
-    // build items sesuai schema FastAPI kamu
     final items = cart.entries.map((e) {
       final p = products.firstWhere((x) => x['id'] == e.key, orElse: () => {'name': 'Produk', 'price': 0});
       return {
@@ -111,3 +111,13 @@ class _ProductPageState extends State<ProductPage> {
                 );
               },
             ),
+      bottomNavigationBar: Padding(
+        padding: const EdgeInsets.all(12),
+        child: FilledButton(
+          onPressed: cart.isEmpty? null : submitPO,
+          child: Text('Kirim PO (${cart.values.fold(0, (a, b) => a + b)} item)'),
+        ),
+      ),
+    );
+  }
+}
