@@ -1,0 +1,24 @@
+# python / fastapi
+venv/
+__pycache__/
+*.pyc
+*.pyo
+.env
+*.db
+*.sqlite3
+
+# flutter
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+build/
+*.apk
+*.aab
+ios/Flutter/flutter_export_environment.sh
+
+# editors
+.vscode/
+.idea/
+*.swp
+.DS_Store
