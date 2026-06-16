@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 
 // Ganti dengan IP laptop/server kamu pas testing
 // Contoh termux: http://localhost:8000
-const String BASE_URL = 'http://localhost:8000';
+sed -i "s|http://localhost:8000|http://127.0.0.1:8000|g" ~/katalog-dt/frontend/lib/main.dart;
 
 void main() => runApp(const KatalogApp());
 
